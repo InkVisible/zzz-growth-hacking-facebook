@@ -15,18 +15,17 @@
     <h1 class="project-name">Growth-hacking Facebook</h1>
     <h2 class="project-tagline">Automatically invite all your friends to a page or event</h2>
     <a href="https://github.com/skedify/growth-hacking-facebook" class="btn">View on GitHub</a>
-    <a href="javascript:(function(){s=document.createElement('script');s.type='text/javascript';s.src='https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js';document.body.appendChild(s);})()" class="btn">The bookmark</a>
+    <a title="Invite all" href="javascript:(function(){s=document.createElement('script');s.type='text/javascript';s.src='https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js';document.body.appendChild(s);})()" class="btn">The bookmark</a>
   </header>
 
   <section class="main-content">
-    <h3>It's
-      <span id="easy">very</span> easy</h3>
+    <h3>It's easy <span id="easy"></span></h3>
 
 
     <p>
       <ol>
         <li>
-          Drag <a href="javascript:(function(){s=document.createElement('script');s.type='text/javascript';s.src='https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js';document.body.appendChild(s);})()" class="btn bookmark">this button</a>
+          Drag <a title="Invite all" href="javascript:(function(){s=document.createElement('script');s.type='text/javascript';s.src='https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js';document.body.appendChild(s);})()" class="btn bookmark">this button</a>
           to your bookmarks.
           If you can't find them, try <span id="how-to-bookmark">RTFM</span>.
         </li>
@@ -51,20 +50,28 @@
 
   <script type="text/javascript">
     (function() {
-      var e, c, l;
+      var e, c, l, i, d;
+      d = 2000;
+      i = 0;
       e = document.getElementById('easy');
       c = [
-        'really',
-        'incredibly',
-        'amazingly',
-        'extremely',
-        'just',
-        'very',
-        '...'
-      ], l = c.length - 1;
-      // setInterval(function() {
-      //   e.innerHTML = c[parseInt(Math.random()*l)];
-      // }, 1000);
+        'as pie',
+        'as falling asleep',
+        'as beans',
+        'because we made it so',
+        ' - just sit back and relax',
+        ' - trust us'
+      ], l = c.length;
+      setInterval(function() {
+        e.classList.add('hidden');
+        setTimeout(function() {
+          e.classList.remove('hidden');
+          e.innerHTML = c[i++];
+        }, d/2);
+        if (i==l) {
+          i=0;
+        }
+      }, d);
     })();
   </script>
 
