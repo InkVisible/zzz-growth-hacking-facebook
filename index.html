@@ -15,19 +15,20 @@
     <h1 class="project-name">Growth-hacking Facebook</h1>
     <h2 class="project-tagline">Automatically invite all your friends to a page or event</h2>
     <a href="https://github.com/skedify/growth-hacking-facebook" class="btn">View on GitHub</a>
-    <a title="Invite all" href="javascript:(function(){s=document.createElement('script');s.type='text/javascript';s.src='https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js';document.body.appendChild(s);})()" class="btn">The bookmark</a>
+    <a title="Invite all" href="javascript:alert('Go back to https://skedify.github.io/growth-hacking-facebook/ and get the latest bookmark!');" class="btn inject-bookmark-url">The bookmark</a>
   </header>
 
   <section class="main-content">
-    <h3>It's easy <span id="easy"></span></h3>
+    <h3>It's easy
+      <span id="easy"></span>
+    </h3>
 
 
     <p>
       <ol>
         <li>
-          Drag <a title="Invite all" href="javascript:(function(){s=document.createElement('script');s.type='text/javascript';s.src='https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js';document.body.appendChild(s);})()" class="btn bookmark">this button</a>
-          to your bookmarks.
-          If you can't find them, try <span id="how-to-bookmark">RTFM</span>.
+          Drag <a title="Invite all" href="javascript:alert('Go back to https://skedify.github.io/growth-hacking-facebook/ and get the latest bookmark!');" class="btn bookmark inject-bookmark-url">Invite all friends</a> to your bookmarks. If you can't find them, try
+          <span id="how-to-bookmark">RTFM</span>.
         </li>
         <li>Go to the facebook page or event you want people to know about.</li>
         <li>Click the bookmark you created in step 1.</li>
@@ -48,7 +49,138 @@
 
   </section>
 
+  <script>
+    // actually inject the code into the bookmarks
+    (function() {
+      var SCRIPT_URL = "https://cdn.rawgit.com/skedify/growth-hacking-facebook/1.0.0/script.js";
+      var xhr, minimize;
+
+      minimize = (function() {
+        var table;
+        // table = [
+        //   {"default": [0, 1, 0]} // pass-through
+        // ];
+        table = [
+          { // 0: code
+            "/": [1, 0, 1], // comment-or-regex
+            "'": [0, 1, 2], // begins single-quoted-string
+            "\"": [0, 1, 4], // begin double-quoted-string
+            "\n": [0, 0, 0], // don't output EOL
+            "default": [0, 1, 0] // pass-through
+          },
+          { // 1: comment-or-regex
+            "/": [3, 0, 8], // begin of one-line-comment -> skip-to-EOL
+            "*": [3, 0, 9], // begin of multi-line-comment -> skip-to-EOC
+            "\\": [2, 1, 7], // regex escape -> escape-in-regex
+            "default": [2, 1, 6] // regex -> regex
+          },
+          { // 2: single-quoted-string
+            "\\": [0, 1, 3], // escape-in-single-quoted-string
+            "'": [0, 1, 0], // end-of-string
+            "default": [0, 1, 2]
+          },
+          { // 3: escape-in-single-quoted-string
+            "default": [0, 1, 2] // continue single-quoted-string
+          },
+          { // 4: double-quoted-string
+            "\\": [0, 1, 5], // escape-in-double-quoted-string
+            "\"": [0, 1, 0], // end-of-string
+            "default": [0, 1, 4]
+          },
+          { // 5: escape-in-double-quoted-string
+            "default": [0, 1, 4] // continue double-quoted-string
+          },
+          { // 6: regex
+            "\\": [0, 1, 7], // escape-in-regex
+            "/": [0, 1, 0], // end-of-regex
+            "default": [0, 1, 6]
+          },
+          { // 7: escape-in-regex
+            "default": [0, 1, 6] // continue regex
+          },
+          { // 8: skip-to-EOL
+            "\n": [0, 0, 0], // EOL -> code
+            "default": [0, 0, 8] // continue skip-to-EOL
+          },
+          { // 9: skip-to-EOC
+            "*": [1, 0, 10], // potential end of multi-line comment -> check-if-EOC
+            "default": [0, 0, 9] // continue skip-to-EOC
+          },
+          { // 10: check-if-EOC
+            "/": [0, 0, 0], // actual end of multi-line comment
+            "default": [2, 1, 9] // continue skip-to-EOC
+          }
+        ];
+
+        return function(input) {
+          var cs, output, stack;
+          cs = 0;
+          stack = [];
+          output = [];
+          input.split('\n').map(function(line) {return line.trim();}).join('\n').split('').forEach(function(char) {
+            var action, chars, indexOfChar;
+            chars = Object.keys(table[cs]);
+            indexOfChar = chars.indexOf(char);
+            if (indexOfChar >= 0) {
+              // matched char in current state
+              action = table[cs][chars[indexOfChar]];
+              console.log('state=%i, char=%s => stack=%i, output=%i, next=%i', cs, char, action[0], action[1], action[2]);
+            } else {
+              // default to "default" rule in current state
+              action = table[cs].default;
+              console.log('state=%i, char=%s => DEFAULT stack=%i, output=%i, next=%i', cs, char, action[0], action[1], action[2]);
+            }
+            switch (action[0]) { // stack action
+              case 0: //do nothing
+                break;
+              case 1: // push current char
+                stack.push(char);
+                break;
+              case 2: // flush
+                Array.prototype.push.apply(output, stack);
+                stack.splice(0, stack.length);
+                break;
+              case 3: // clear
+                stack.splice(0, stack.length);
+                break;
+            }
+            if (action[1]) { // whether to output current char
+              output.push(char);
+            }
+            // set next state
+            cs = action[2];
+          });
+
+          return output.join('');
+        };
+      })();
+
+      xhr = new XMLHttpRequest()
+      if (typeof xhr.withCredentials === 'undefined') {
+        if (typeof XDomainRequest !== 'undefined') {
+          xhr = new XDomainRequest();
+            xhr.open('GET', SCRIPT_URL);
+        } else {
+          throw new Error('CORS not supported');
+        }
+      } else {
+        xhr.open('GET', SCRIPT_URL, true);
+      }
+
+      xhr.onload = function (event) {
+        var code = minimize(xhr.response);
+        console.log(code);
+        Array.prototype.forEach.call(document.querySelectorAll('.inject-bookmark-url'), function(el) {
+          el.href = 'javascript:' + code;
+        });
+      }
+
+      xhr.send();
+    })();
+  </script>
+
   <script type="text/javascript">
+    // show changing interpretations of how easy this is
     (function() {
       var e, c, l, i, d;
       d = 2000;
@@ -67,15 +199,16 @@
         setTimeout(function() {
           e.classList.remove('hidden');
           e.innerHTML = c[i++];
-        }, d/2);
-        if (i==l) {
-          i=0;
+        }, d / 2);
+        if (i == l) {
+          i = 0;
         }
       }, d);
     })();
   </script>
 
   <script type="text/javascript">
+    // show info of how to bookmark
     (function() {
       var how_to_bookmark = document.getElementById('how-to-bookmark');
       // the following from
@@ -92,7 +225,7 @@
       } else if (!!window.chrome) {
         // Chrome 1+
         how_to_bookmark.innerHTML = 'pressing Ctrl+Shift+B';
-      } else if (/*@cc_on!@*/ false || !!document.documentMode) {
+      } else if ( /*@cc_on!@*/ false || !!document.documentMode) {
         // At least IE6
         how_to_bookmark.innerHTML = 'pressing Ctrl+Shift+I or Ctrl+Shift+B';
       } else {

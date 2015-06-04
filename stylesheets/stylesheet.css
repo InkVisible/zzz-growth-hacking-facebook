@@ -293,12 +293,24 @@ a:hover {
 .bookmark {
   background-color: #48649F;
   margin: 0 1em;
+  color: transparent;
+  font-size: 1px;
+  letter-spacing: -1px;
+}
+.bookmark::after {
+  content: 'this button';
+  color: white;
+  font-size: 1rem;
+  letter-spacing: normal;
 }
 .bookmark:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: transparent;
   text-decoration: none;
   background-color: rgba(13, 94, 63, 0.83);
   border-color: rgba(255, 255, 255, 0.3);
+}
+.bookmark::after:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 li {
   margin: 2em 0;
