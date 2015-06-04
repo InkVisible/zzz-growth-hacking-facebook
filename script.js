@@ -50,7 +50,7 @@
       document.querySelector('a[role=button][rel=dialog][href^="/ajax/choose"]').click();
       // start looking for the invitation dialog
       backoff(function() {
-        var dialog = document.querySelector('form[action="/ajax/pages/invite/send/"]');
+        var dialog = document.querySelector('form[action^="/ajax/pages/invite/send/"]');
         if (dialog !== null) {
           // start clicking
           scrollAndClick(dialog, 'li[role=option]', function(li) {
