@@ -47,7 +47,7 @@
       var invite_links = invite_section.querySelector('a[role=button][rel=async-post]');
       Array.prototype.forEach.call(invite_links, click);
     } else {
-      document.querySelector('a[role=button][rel=dialog][href^="/ajax/choose"]').click();
+      (document.querySelector('a[role=button][rel=dialog][href^="/ajax/choose"]')||document.querySelector('a[role=button][rel=dialog][href^="/pages/invite/\?.*"]')).click();
       // start looking for the invitation dialog
       backoff(function() {
         var dialog = document.querySelector('form[action^="/ajax/pages/invite/send/"]');
